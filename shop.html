@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendy Tees - Shop</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
             position: relative;
         }
+        
         #scroll-to-top {
             position: fixed;
             bottom: 20px;
@@ -55,9 +58,9 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Custom style to adjust DaisyUI's image-full overlay */
+        /* Custom style to adjust DaisyUI's image-full card overlay */
         .card.image-full:before {
-            background-color: rgba(0, 0, 0, 0.3); /* Adjust opacity here (0.3 is less dark than default) */
+            background-color: rgba(0, 0, 0, 0.3); /* Adjusts the overlay opacity */
         }
     </style>
 </head>
@@ -119,7 +122,7 @@
             </div>
             
             <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 pr-2">
-            </div>
+                </div>
             
             <div class="border-t pt-4 mt-4">
                 <p class="text-xl font-bold mb-4 flex justify-between">Total: <span id="cart-total">₹0.00</span></p>
@@ -226,12 +229,15 @@
     </footer>
 
     <script>
+        // Hides the loading spinner once the page content is fully loaded
         window.addEventListener('load', function() {
             const spinner = document.getElementById('loading-spinner');
             spinner.style.display = 'none';
         });
 
         const USD_TO_INR_RATE = 83; 
+        
+        // Array of product objects
         const products = [
             {
                 id: 1,
@@ -305,15 +311,16 @@
                 alt: 'Combo pack of solid color men\'s t-shirts including white, navy, and army green',
                 description: 'Get more for less with this combo pack of three comfortable, regular-fit cotton t-shirts in solid colors.'
             }
-            
         ];
 
-        let cart = [];
+        let cart = []; // Initializes an empty array to hold items in the shopping cart
 
+        // Function to format price into Indian Rupees (INR)
         function formatPriceInINR(priceInOriginalCurrency) {
             return `₹${(priceInOriginalCurrency * USD_TO_INR_RATE).toFixed(2)}`;
         }
 
+        // Function to add a product to the cart
         function addToCart(product) {
             const existingItem = cart.find(item => item.id === product.id);
             if (existingItem) {
@@ -324,6 +331,7 @@
             updateCartUI();
         }
 
+        // Function to remove one quantity of a product from the cart
         function removeFromCart(id) {
             const index = cart.findIndex(item => item.id === id);
             if (index > -1) {
@@ -336,11 +344,13 @@
             updateCartUI();
         }
 
+        // Function to calculate the total price of items in the cart
         function calculateTotal() {
             const totalOriginalCurrency = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             return formatPriceInINR(totalOriginalCurrency);
         }
 
+        // Function to update the Cart UI (sidebar and count)
         function updateCartUI() {
             document.querySelectorAll('[id$="cart-count"]').forEach(el => {
                 const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -369,11 +379,13 @@
             document.getElementById('cart-total').innerHTML = calculateTotal();
         }
 
+        // Function to remove a product entirely from the cart
         function removeEntirelyFromCart(id) {
             cart = cart.filter(item => item.id !== id);
             updateCartUI();
         }
 
+        // Function to render all products on the page
         function renderProducts() {
             const productsEl = document.getElementById('products');
             productsEl.innerHTML = products.map(product => `
@@ -396,6 +408,7 @@
             `).join('');
         }
 
+        // Event listener for "Add to Cart" buttons
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('add-to-cart')) {
                 const productId = e.target.dataset.productId;
@@ -404,37 +417,41 @@
             }
         });
 
+        // Event listener to open the cart sidebar (desktop)
         document.getElementById('view-cart').addEventListener('click', () => {
             document.getElementById('cart-sidebar').style.transform = 'translateX(0)';
         });
 
+        // Event listener to open the cart sidebar (mobile)
         document.getElementById('mobile-view-cart').addEventListener('click', () => {
             document.getElementById('cart-sidebar').style.transform = 'translateX(0)';
             document.getElementById('mobile-menu').classList.add('hidden');
         });
 
+        // Event listener to close the cart sidebar
         document.getElementById('close-cart').addEventListener('click', () => {
             document.getElementById('cart-sidebar').style.transform = 'translateX(100%)';
         });
 
+        // Event listener to toggle the mobile navigation menu
         document.getElementById('mobile-menu-button').addEventListener('click', () => {
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
 
+        // Event listener for the "Proceed to Checkout" button in the cart
         document.getElementById('proceed-to-checkout').addEventListener('click', () => {
             if (cart.length === 0) {
                 alert('Your cart is empty. Please add items before checking out.');
                 return;
             }
-            document.getElementById('cart-sidebar').style.transform = 'translateX(100%)'; // Hide cart sidebar
-            checkout_modal.showModal(); // Show DaisyUI modal
+            document.getElementById('cart-sidebar').style.transform = 'translateX(100%)';
+            checkout_modal.showModal();
         });
 
+        // Event listener for the checkout form submission
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
 
-            // Here you would typically send the order details to a backend server.
-            // For this example, we'll simulate a successful order.
             console.log("Order placed!");
             console.log("Cart items:", cart);
             const formData = new FormData(this);
@@ -442,30 +459,31 @@
                 console.log(`${key}: ${value}`);
             }
 
-            checkout_modal.close(); // Close checkout modal
-            order_confirmation_modal.showModal(); // Show order confirmation modal
+            checkout_modal.close();
+            order_confirmation_modal.showModal();
         });
 
+        // Function to reset the shop state after an order is placed
         function resetShop() {
-            cart = []; // Clear the cart
-            updateCartUI(); // Update cart display
-            // You might want to navigate back to the home/products page if you had a multi-page setup.
-            // window.location.href = '/'; // Example for redirecting
+            cart = [];
+            updateCartUI();
         }
 
         // Scroll-to-top button logic
         const scrollToTopBtn = document.getElementById('scroll-to-top');
 
+        // Shows/hides the scroll-to-top button based on scroll position
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) { // Show button after scrolling 300px
+            if (window.scrollY > 300) {
                 scrollToTopBtn.style.display = 'block';
-                setTimeout(() => scrollToTopBtn.style.opacity = '1', 10); // Smooth fade in
+                setTimeout(() => scrollToTopBtn.style.opacity = '1', 10);
             } else {
                 scrollToTopBtn.style.opacity = '0';
-                setTimeout(() => scrollToTopBtn.style.display = 'none', 300); // Smooth fade out then hide
+                setTimeout(() => scrollToTopBtn.style.display = 'none', 300);
             }
         });
 
+        // Scrolls the page to the top when the button is clicked
         scrollToTopBtn.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
@@ -473,14 +491,15 @@
             });
         });
 
-        // Ensure links open correctly (new tabs if external)
+        // Ensures external links open in new tabs
         document.querySelectorAll('a').forEach(link => {
             if (link.href.startsWith('http') && !link.href.includes(window.location.hostname)) {
                 link.setAttribute('target', '_blank');
-                link.setAttribute('rel', 'noopener noreferrer'); 
+                link.setAttribute('rel', 'noopener noreferrer');
             }
         });
 
+        // Initial calls to render products and update cart UI
         renderProducts();
         updateCartUI();
     </script>
